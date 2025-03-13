@@ -93,6 +93,7 @@ const LoginPage = () => {
             providers={['google', 'github']}
             socialLayout="horizontal"
             onlyThirdPartyProviders={true}
+            redirectTo={window.location.origin}
           />
 
           <div className="mt-8 text-center text-sm text-gray-500">
