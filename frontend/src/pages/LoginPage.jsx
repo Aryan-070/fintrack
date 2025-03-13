@@ -25,7 +25,8 @@ const LoginPage = () => {
 
       // Call the API with the user ID
       try {
-        const response = await axios.get(`http://localhost:8000/users/${userId}`);
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        const response = await axios.get(`${apiUrl}/users/${userId}`);
         console.log('User data:', response.data);
       } catch (apiError) {
         console.error('API call error:', apiError.message);
