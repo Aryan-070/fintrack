@@ -139,7 +139,7 @@ export const financialService = {
        const response = await api.post(`/api/liabilities/`, { 
          ...liability, 
          user_id: userId,
-         amount: Number(liability.value)
+         amount: Number(liability.amount)
        });
        toast.success('Liability added successfully!');
        return response;
