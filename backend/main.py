@@ -20,10 +20,19 @@ load_dotenv()
 app = FastAPI(title="Financial Management API")
 executor = ThreadPoolExecutor()
 
+# Get allowed origins from environment or use default for local development
+#FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+ALLOWED_ORIGINS = [
+    #FRONTEND_URL,
+    "https://fin-ance-tracking.netlify.app/dashboard",  # Add your Netlify URL here
+    "http://localhost:5173",
+    "http://localhost:3000",
+]
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
