@@ -25,27 +25,64 @@ ChartJS.register(
   ArcElement
 );
 
+// Define dummy data to use when API data is not available
+const DUMMY_DATA = {
+  totalIncome: 12000,
+  totalExpenses: 8500,
+  netWorth: 3500,
+  monthlyData: [
+    { month: 'Jan', income: 2000, expense: 1500 },
+    { month: 'Feb', income: 2200, expense: 1600 },
+    { month: 'Mar', income: 1800, expense: 1400 },
+    { month: 'Apr', income: 2100, expense: 1700 },
+    { month: 'May', income: 2300, expense: 1800 },
+    { month: 'Jun', income: 1600, expense: 500 },
+  ],
+  expenseCategories: [
+    { category: 'housing', amount: 3000 },
+    { category: 'food', amount: 1500 },
+    { category: 'transportation', amount: 1000 },
+    { category: 'utilities', amount: 800 },
+    { category: 'entertainment', amount: 700 },
+    { category: 'healthcare', amount: 500 },
+    { category: 'education', amount: 400 },
+    { category: 'other', amount: 600 }
+  ]
+};
+
 const Dashboard = () => {
-  const [dashboardData, setDashboardData] = useState({
-    totalIncome: 0,
-    totalExpenses: 0,
-    netWorth: 0,
-    monthlyData: [],
-    expenseCategories: []
-  });
+  const [dashboardData, setDashboardData] = useState(DUMMY_DATA);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isUsingDummyData, setIsUsingDummyData] = useState(false);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
         const response = await financialService.getDashboardData();
-        setDashboardData(response.data);
+        
+        // Check if response data exists and has valid content
+        if (response.data && 
+            Object.keys(response.data).length > 0 && 
+            response.data.monthlyData && 
+            response.data.monthlyData.length > 0 &&
+            response.data.expenseCategories &&
+            response.data.expenseCategories.length > 0) {
+          setDashboardData(response.data);
+          setIsUsingDummyData(false);
+        } else {
+          console.log('API returned empty data, using dummy data instead');
+          setDashboardData(DUMMY_DATA);
+          setIsUsingDummyData(true);
+        }
+        
         setError(null);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
-        setError('Failed to load dashboard data. Please try again later.');
+        setError('Failed to load dashboard data. Using sample data instead.');
+        setDashboardData(DUMMY_DATA);
+        setIsUsingDummyData(true);
       } finally {
         setLoading(false);
       }
@@ -160,20 +197,23 @@ const Dashboard = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
-          <p className="font-bold">Error</p>
-          <p>{error}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Financial Dashboard</h1>
+      
+      {isUsingDummyData && (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded mb-6">
+          <p className="font-bold">Notice</p>
+          <p>Displaying sample data. Connect your accounts to see your actual financial information.</p>
+        </div>
+      )}
+      
+      {error && (
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded mb-6">
+          <p className="font-bold">Error</p>
+          <p>{error}</p>
+        </div>
+      )}
       
       {/* Financial Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -196,23 +236,11 @@ const Dashboard = () => {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <div className="bg-white rounded-lg shadow-md p-6">
-          {monthlyData.length > 0 ? (
-            <Bar data={incomeExpensesChartData} options={barChartOptions} />
-          ) : (
-            <div className="h-64 flex items-center justify-center text-gray-500">
-              No monthly data available
-            </div>
-          )}
+          <Bar data={incomeExpensesChartData} options={barChartOptions} />
         </div>
         
         <div className="bg-white rounded-lg shadow-md p-6">
-          {expenseCategories.length > 0 ? (
-            <Pie data={expenseBreakdownChartData} options={pieChartOptions} />
-          ) : (
-            <div className="h-64 flex items-center justify-center text-gray-500">
-              No expense data available
-            </div>
-          )}
+          <Pie data={expenseBreakdownChartData} options={pieChartOptions} />
         </div>
       </div>
 

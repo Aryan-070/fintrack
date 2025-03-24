@@ -3,23 +3,88 @@ import { useTransactions } from '../context/TransactionContext';
 import { TRANSACTION_CATEGORIES, getCategoryNameById } from '../utils/transactionCategories';
 import TransactionForm from './TransactionForm';
 
+// Dummy transaction data to use when no real transactions are available
+const DUMMY_TRANSACTIONS = [
+  {
+    id: 'dummy-1',
+    description: 'Salary Deposit',
+    amount: 3200,
+    transaction_date: new Date(new Date().getFullYear(), new Date().getMonth(), 15).toISOString(),
+    type: 'income',
+    category: 'salary'
+  },
+  {
+    id: 'dummy-2',
+    description: 'Rent Payment',
+    amount: 1500,
+    transaction_date: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString(),
+    type: 'expense',
+    category: 'housing'
+  },
+  {
+    id: 'dummy-3',
+    description: 'Grocery Store',
+    amount: 125.60,
+    transaction_date: new Date(new Date().getFullYear(), new Date().getMonth(), 10).toISOString(),
+    type: 'expense',
+    category: 'food'
+  },
+  {
+    id: 'dummy-4',
+    description: 'Freelance Work',
+    amount: 850,
+    transaction_date: new Date(new Date().getFullYear(), new Date().getMonth(), 20).toISOString(),
+    type: 'income',
+    category: 'other_income'
+  },
+  {
+    id: 'dummy-5',
+    description: 'Electric Bill',
+    amount: 95.42,
+    transaction_date: new Date(new Date().getFullYear(), new Date().getMonth(), 5).toISOString(),
+    type: 'expense',
+    category: 'utilities'
+  },
+  {
+    id: 'dummy-6',
+    description: 'Movie Tickets',
+    amount: 32.50,
+    transaction_date: new Date(new Date().getFullYear(), new Date().getMonth(), 18).toISOString(),
+    type: 'expense',
+    category: 'entertainment'
+  },
+  {
+    id: 'dummy-7',
+    description: 'Gas Station',
+    amount: 45.80,
+    transaction_date: new Date(new Date().getFullYear(), new Date().getMonth(), 12).toISOString(),
+    type: 'expense',
+    category: 'transportation'
+  }
+];
+
 const TransactionList = () => {
   const { transactions, deleteTransaction } = useTransactions();
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [filter, setFilter] = useState('all'); // 'all', 'income', 'expense'
   const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [isUsingDummyData, setIsUsingDummyData] = useState(false);
 
   // Update filtered transactions whenever transactions or filter changes
   useEffect(() => {
+    // Check if we need to use dummy data
+    let transactionsToUse = transactions;
+    
+    if (!transactions || transactions.length === 0) {
+      transactionsToUse = DUMMY_TRANSACTIONS;
+      setIsUsingDummyData(true);
+    } else {
+      setIsUsingDummyData(false);
+    }
+    
     // Apply filtering
-    const filtered = transactions.filter(transaction => {
-      // For debugging - log the first transaction to see its structure
-      if (transactions.length > 0 && !window.transactionLogged) {
-        console.log('First transaction structure:', transactions[0]);
-        window.transactionLogged = true;
-      }
-      
+    const filtered = transactionsToUse.filter(transaction => {
       if (filter === 'all') return true;
       
       // Check both transaction.type and transaction.transaction_type
@@ -68,6 +133,18 @@ const TransactionList = () => {
     return transaction.category || transaction.category_type || '';
   };
 
+  // Handle delete action with dummy data consideration
+  const handleDelete = (transactionId) => {
+    if (isUsingDummyData) {
+      // If using dummy data, just filter the transactions locally
+      const updatedTransactions = filteredTransactions.filter(t => t.id !== transactionId);
+      setFilteredTransactions(updatedTransactions);
+    } else {
+      // Otherwise use the regular delete function
+      deleteTransaction(transactionId);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex justify-between items-center mb-6">
@@ -79,6 +156,13 @@ const TransactionList = () => {
           Add Transaction
         </button>
       </div>
+
+      {isUsingDummyData && (
+        <div className="mb-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-3 rounded">
+          <p className="font-semibold">Sample Transactions</p>
+          <p className="text-sm">Displaying example data. Add your transactions to see your actual financial activity.</p>
+        </div>
+      )}
 
       {/* Filter Controls */}
       <div className="mb-4 flex gap-2">
@@ -116,7 +200,7 @@ const TransactionList = () => {
 
       {/* Debug info */}
       <div className="mb-4 text-sm text-gray-500">
-        Showing {filteredTransactions.length} of {transactions.length} transactions
+        Showing {filteredTransactions.length} transactions
       </div>
 
       {/* Transactions Table */}
@@ -170,7 +254,7 @@ const TransactionList = () => {
                       Edit
                     </button>
                     <button
-                      onClick={() => deleteTransaction(transaction.id)}
+                      onClick={() => handleDelete(transaction.id)}
                       className="text-red-600 hover:text-red-900"
                     >
                       Delete

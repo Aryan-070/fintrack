@@ -11,7 +11,6 @@ import LoginPage from './pages/LoginPage';
 import { AssetProvider } from './context/AssetContext';
 import { LiabilityProvider } from './context/LiabilityContext';
 import { AuthProvider } from './context/AuthContext';
-import PrivateRoute from './components/PrivateRoute';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -48,45 +47,37 @@ function App() {
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/login" element={<LoginPage />} />
             
-            {/* Protected routes */}
+            {/* Routes without authentication requirement */}
             <Route
               path="/dashboard"
               element={
-                <PrivateRoute>
-                  <AppProviders>
-                    <Dashboard />
-                  </AppProviders>
-                </PrivateRoute>
+                <AppProviders>
+                  <Dashboard />
+                </AppProviders>
               }
             />
             <Route
               path="/transactions"
               element={
-                <PrivateRoute>
-                  <AppProviders>
-                    <TransactionsPage />
-                  </AppProviders>
-                </PrivateRoute>
+                <AppProviders>
+                  <TransactionsPage />
+                </AppProviders>
               }
             />
             <Route
               path="/reports"
               element={
-                <PrivateRoute>
-                  <AppProviders>
-                    <ReportsPage />
-                  </AppProviders>
-                </PrivateRoute>
+                <AppProviders>
+                  <ReportsPage />
+                </AppProviders>
               }
             />
             <Route
               path="/settings"
               element={
-                <PrivateRoute>
-                  <AppProviders>
-                    <SettingsPage />
-                  </AppProviders>
-                </PrivateRoute>
+                <AppProviders>
+                  <SettingsPage />
+                </AppProviders>
               }
             />
             
