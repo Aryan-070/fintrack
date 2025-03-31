@@ -10,6 +10,7 @@ const TransactionForm = ({ transaction = null, onClose }) => {
     amount: '',
     transaction_type: TRANSACTION_TYPES.EXPENSE,
     category_type: '',
+    location : 'Delhi',
     is_recurring: false,
   });
   const [errors, setErrors] = useState({});
@@ -27,6 +28,7 @@ const TransactionForm = ({ transaction = null, onClose }) => {
         description: transaction.description || '',
         amount: transaction.amount || '',
         transaction_type: validType,
+        location: transaction.location || 'Delhi',
         category_type: transaction.category_type || '',
         is_recurring: transaction.is_recurring || false,
       });
@@ -54,6 +56,7 @@ const TransactionForm = ({ transaction = null, onClose }) => {
     const newErrors = {};
     if (!form.transaction_date) newErrors.transaction_date = 'Date is required';
     if (!form.description) newErrors.description = 'Description is required';
+    if (!form.location) newErrors.location = 'Location is required';
     if (!form.amount || form.amount <= 0) newErrors.amount = 'Amount must be greater than 0';
     if (!form.category_type) newErrors.category_type = 'Category is required';
     
@@ -78,6 +81,7 @@ const TransactionForm = ({ transaction = null, onClose }) => {
     const transactionData = {
       transaction_date: form.transaction_date,
       description: form.description,
+      location: form.location,
       amount: Number(form.amount), // Ensure amount is a number
       transaction_type: form.transaction_type,
       category_type: form.category_type,
@@ -183,7 +187,21 @@ const TransactionForm = ({ transaction = null, onClose }) => {
           />
           {errors.amount && <p className="text-red-500 text-sm mt-1">{errors.amount}</p>}
         </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 mb-1" htmlFor="description">
+            Description
+          </label>
+          <input
+            type="text"
+            id="location"
+            name="location"
+            value={form.location}
+            onChange={handleChange}
+            className={`w-full p-2 border rounded ${errors.location ? 'border-red-500' : 'border-gray-300'}`}
+            placeholder="Location"
+          />
         
+        </div>
         <div className="mb-4">
           <label className="block text-gray-700 mb-1" htmlFor="category_type">
             Category
