@@ -5,6 +5,7 @@ class TransactionBase(BaseModel):
     amount: condecimal(max_digits=12, decimal_places=2)
     category_type: str
     transaction_type: str
+    location: str
     description: Optional[str] = None
     is_recurring: bool = False
     
